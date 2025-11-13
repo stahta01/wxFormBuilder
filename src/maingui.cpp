@@ -109,6 +109,13 @@ int MyApp::OnRun()
     delete wxConfigBase::Set(new wxConfig(wxT("wxFormBuilder")));
 
     // Get the data directory
+#if defined(FOR_MSYS2_PACKAGE)
+    wxFileName execfpath(wxStandardPaths::Get().GetExecutablePath());
+    if (execfpath.GetDirs().Last().IsSameAs("bin")) {
+        execfpath.RemoveLastDir();
+    }
+    wxString dataDir = execfpath.GetPath() + wxT("/share/wxformbuilder");
+#else
     auto& stdPaths = wxStandardPaths::Get();
 #if defined(__WINDOWS__)
     // The CMake stage build roots the whole directory structure at the build directory
@@ -117,6 +124,7 @@ int MyApp::OnRun()
 #endif
     wxString dataDir = stdPaths.GetDataDir();
     dataDir.Replace(GetAppName(), wxT("wxformbuilder"));
+#endif
 
     // Log to stderr while working on the command line
     delete wxLog::SetActiveTarget(new wxLogStderr);
